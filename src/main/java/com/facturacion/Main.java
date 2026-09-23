@@ -1,22 +1,12 @@
 package com.facturacion;
 
-import com.facturacion.entities.Articulo;
-import com.facturacion.entities.FacturaVenta;
-import com.facturacion.entities.FacturaVentaDetalle;
-import com.facturacion.entities.ListaPrecio;
-import com.facturacion.entities.ListaPrecioArticulo;
-import com.facturacion.entities.PuntoVenta;
-import com.facturacion.entities.Usuario;
+import com.facturacion.entities.*;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import java.util.Date;
-import com.facturacion.entities.Cliente;
-import com.facturacion.entities.Contacto;
-import com.facturacion.entities.Domicilio;
-import com.facturacion.entities.CondicionIva;
-import com.facturacion.entities.TipoMoneda;
+import java.util.Calendar;
 
 public class Main {
 
@@ -30,6 +20,7 @@ public class Main {
         try {
             em.getTransaction().begin();
 
+            // ---------- Usuario ----------
             Usuario usuario = new Usuario();
             usuario.setUsuario("admin");
             usuario.setClave("1234");
@@ -37,26 +28,72 @@ public class Main {
             usuario.setApellido("Perez");
             em.persist(usuario);
 
-            PuntoVenta puntoVenta = new PuntoVenta();
-            puntoVenta.setNumero(1);
-            puntoVenta.setDescripcion("Casa Central");
-            puntoVenta.setTipoEmision("Electronica");
-            puntoVenta.setDomicilioComercial("Av. Siempre Viva 123");
-            puntoVenta.setFechaAlta(new Date());
-            puntoVenta.setFechaModificacion(new Date());
-            puntoVenta.setUsuarioCarga(usuario);
-            puntoVenta.setUsuarioModificacion(usuario);
-            em.persist(puntoVenta);
+            // ---------- Rubro y Marca ----------
+            Rubro rubro = new Rubro();
+            rubro.setCodigo(1);
+            rubro.setDenominacion("Electrónica");
+            rubro.setFechaAlta(new Date());
+            rubro.setFechaModificacion(new Date());
+            rubro.setUsuarioCarga(usuario);
+            rubro.setUsuarioModificacion(usuario);
+            em.persist(rubro);
 
-            Articulo articulo = new Articulo();
-            articulo.setCodigo("ART-001");
-            articulo.setDenominacion("Notebook 15\"");
-            articulo.setFechaAlta(new Date());
-            articulo.setFechaModificacion(new Date());
-            articulo.setUsuarioCarga(usuario);
-            articulo.setUsuarioModificacion(usuario);
-            em.persist(articulo);
+            Marca marca = new Marca();
+            marca.setCodigo(1);
+            marca.setDenominacion("Samsung");
+            marca.setFechaAlta(new Date());
+            marca.setFechaModificacion(new Date());
+            marca.setUsuarioCarga(usuario);
+            marca.setUsuarioModificacion(usuario);
+            em.persist(marca);
 
+            // ---------- Puntos de venta ----------
+            PuntoVenta pv1 = new PuntoVenta();
+            pv1.setNumero(1);
+            pv1.setDescripcion("Casa Central");
+            pv1.setTipoEmision("Electronica");
+            pv1.setDomicilioComercial("Av. Siempre Viva 123");
+            pv1.setFechaAlta(new Date());
+            pv1.setFechaModificacion(new Date());
+            pv1.setUsuarioCarga(usuario);
+            pv1.setUsuarioModificacion(usuario);
+            em.persist(pv1);
+
+            PuntoVenta pv2 = new PuntoVenta();
+            pv2.setNumero(2);
+            pv2.setDescripcion("Sucursal Norte");
+            pv2.setTipoEmision("Electronica");
+            pv2.setDomicilioComercial("Belgrano 500");
+            pv2.setFechaAlta(new Date());
+            pv2.setFechaModificacion(new Date());
+            pv2.setUsuarioCarga(usuario);
+            pv2.setUsuarioModificacion(usuario);
+            em.persist(pv2);
+
+            // ---------- Artículos ----------
+            // ART-001 SÍ tiene rubro, marca, y se va a vender (para consultas 3, 12, 13, 17, 18)
+            Articulo articulo1 = new Articulo();
+            articulo1.setCodigo("ART-001");
+            articulo1.setDenominacion("Notebook 15\"");
+            articulo1.setRubro(rubro);
+            articulo1.setMarca(marca);
+            articulo1.setFechaAlta(new Date());
+            articulo1.setFechaModificacion(new Date());
+            articulo1.setUsuarioCarga(usuario);
+            articulo1.setUsuarioModificacion(usuario);
+            em.persist(articulo1);
+
+            // ART-002 NUNCA se vende (para probar la consulta 19, NOT EXISTS)
+            Articulo articulo2 = new Articulo();
+            articulo2.setCodigo("ART-002");
+            articulo2.setDenominacion("Mouse Inalámbrico");
+            articulo2.setFechaAlta(new Date());
+            articulo2.setFechaModificacion(new Date());
+            articulo2.setUsuarioCarga(usuario);
+            articulo2.setUsuarioModificacion(usuario);
+            em.persist(articulo2);
+
+            // ---------- Lista de precios ----------
             ListaPrecio listaPrecio = new ListaPrecio();
             listaPrecio.setCodigo("LP-GRAL");
             listaPrecio.setDenominacion("Lista General");
@@ -66,38 +103,60 @@ public class Main {
             listaPrecio.setUsuarioModificacion(usuario);
             em.persist(listaPrecio);
 
-            ListaPrecioArticulo listaPrecioArticulo = new ListaPrecioArticulo();
-            listaPrecioArticulo.setListaPrecio(listaPrecio);
-            listaPrecioArticulo.setArticulo(articulo);
-            listaPrecioArticulo.setPrecioVenta(150000.0);
-            listaPrecioArticulo.setFechaAlta(new Date());
-            listaPrecioArticulo.setFechaModificacion(new Date());
-            listaPrecioArticulo.setUsuarioCarga(usuario);
-            listaPrecioArticulo.setUsuarioModificacion(usuario);
-            em.persist(listaPrecioArticulo);
+            ListaPrecioArticulo lpa1 = new ListaPrecioArticulo();
+            lpa1.setListaPrecio(listaPrecio);
+            lpa1.setArticulo(articulo1);
+            lpa1.setPrecioVenta(15000.0);
+            lpa1.setFechaAlta(new Date());
+            lpa1.setFechaModificacion(new Date());
+            lpa1.setUsuarioCarga(usuario);
+            lpa1.setUsuarioModificacion(usuario);
+            em.persist(lpa1);
 
-            Contacto contacto = new Contacto();
-            contacto.setEmail("cliente@example.com");
-            contacto.setTelefono("0261-4123456");
-            contacto.setCelular("261-5551234");
-            em.persist(contacto);
+            // ---------- Clientes ----------
+            Contacto contacto1 = new Contacto();
+            contacto1.setEmail("cliente1@example.com");
+            contacto1.setTelefono("0261-4123456");
+            em.persist(contacto1);
 
-            Domicilio domicilio = new Domicilio();
-            domicilio.setNombreCalle("San Martin");
-            domicilio.setNumeroCalle("1234");
-            em.persist(domicilio);
+            Domicilio domicilio1 = new Domicilio();
+            domicilio1.setNombreCalle("San Martin");
+            domicilio1.setNumeroCalle("1234");
+            em.persist(domicilio1);
 
-            Cliente cliente = new Cliente();
-            cliente.setCuitCuil("20-12345678-9");
-            cliente.setDenominacion("Cliente de Prueba");
-            cliente.setContacto(contacto);
-            cliente.setDomicilio(domicilio);
-            cliente.setFechaAlta(new Date());
-            cliente.setFechaModificacion(new Date());
-            cliente.setUsuarioCarga(usuario);
-            cliente.setUsuarioModificacion(usuario);
-            em.persist(cliente);
+            Cliente cliente1 = new Cliente();
+            cliente1.setCuitCuil("20-12345678-9");
+            cliente1.setDenominacion("Cliente de Prueba");
+            cliente1.setContacto(contacto1);
+            cliente1.setDomicilio(domicilio1);
+            cliente1.setFechaAlta(new Date());
+            cliente1.setFechaModificacion(new Date());
+            cliente1.setUsuarioCarga(usuario);
+            cliente1.setUsuarioModificacion(usuario);
+            em.persist(cliente1);
 
+            Contacto contacto2 = new Contacto();
+            contacto2.setEmail("cliente2@example.com");
+            contacto2.setTelefono("0261-4987654");
+            em.persist(contacto2);
+
+            Domicilio domicilio2 = new Domicilio();
+            domicilio2.setNombreCalle("Belgrano");
+            domicilio2.setNumeroCalle("500");
+            em.persist(domicilio2);
+
+            Cliente cliente2 = new Cliente();
+            cliente2.setCuitCuil("20-98765432-1");
+            cliente2.setDenominacion("Comercial San Martín");
+            cliente2.setContacto(contacto2);
+            cliente2.setDomicilio(domicilio2);
+            cliente2.setFechaAlta(new Date());
+            cliente2.setFechaModificacion(new Date());
+            cliente2.setUsuarioCarga(usuario);
+            cliente2.setUsuarioModificacion(usuario);
+            em.persist(cliente2);
+
+            // ---------- CondicionIva y TipoMoneda ----------
             CondicionIva condicionIva = new CondicionIva();
             condicionIva.setCodigoAfip(1);
             condicionIva.setDenominacion("Responsable Inscripto");
@@ -117,36 +176,18 @@ public class Main {
             tipoMoneda.setUsuarioModificacion(usuario);
             em.persist(tipoMoneda);
 
-            FacturaVenta facturaVenta = new FacturaVenta();
-            facturaVenta.setNumero(1L);
-            facturaVenta.setFechaEmision(new Date());
-            facturaVenta.setPuntoVenta(puntoVenta);
-            facturaVenta.setCliente(cliente);
-            facturaVenta.setCondicionIva(condicionIva);
-            facturaVenta.setTipoMoneda(tipoMoneda);
-            facturaVenta.setImporteTotal(150000.0);
-            facturaVenta.setEstado("PENDIENTE");
-            facturaVenta.setFechaAlta(new Date());
-            facturaVenta.setFechaModificacion(new Date());
-            facturaVenta.setUsuarioCarga(usuario);
-            facturaVenta.setUsuarioModificacion(usuario);
-
-            FacturaVentaDetalle detalle1 = new FacturaVentaDetalle();
-            detalle1.setListaPrecioArticulo(listaPrecioArticulo);
-            detalle1.setDescripcion("Notebook 15\"");
-            detalle1.setCantidad(1);
-            detalle1.setPrecioUnitario(150000.0);
-            detalle1.setImporteSubtotal(150000.0);
-
-            facturaVenta.addDetalle(detalle1);
-
-
-            em.persist(facturaVenta);
+            // ---------- 6 Facturas con datos variados ----------
+            // numero, puntoVenta, cliente, importeTotal, estado, cantidadDetalle
+            crearFactura(em, 1L, pv1, cliente1, usuario, condicionIva, tipoMoneda, lpa1, 150000.0, "EMITIDA", 1);
+            crearFactura(em, 2L, pv2, cliente2, usuario, condicionIva, tipoMoneda, lpa1, 25000.0, "EMITIDA", 2);
+            crearFactura(em, 3L, pv1, cliente1, usuario, condicionIva, tipoMoneda, lpa1, 5000.0, "PENDIENTE", 1);
+            crearFactura(em, 4L, pv1, cliente2, usuario, condicionIva, tipoMoneda, lpa1, 80000.0, "EMITIDA", 3);
+            crearFactura(em, 5L, pv2, cliente1, usuario, condicionIva, tipoMoneda, lpa1, 12000.0, "EMITIDA", 1);
+            crearFactura(em, 6L, pv1, cliente2, usuario, condicionIva, tipoMoneda, lpa1, 3000.0, "EMITIDA", 2);
 
             em.getTransaction().commit();
 
-            System.out.println("Factura persistida con id=" + facturaVenta.getId()
-                    + " y " + facturaVenta.getDetalles().size() + " detalle(s).");
+            System.out.println("Datos de prueba cargados con éxito.");
 
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
@@ -157,5 +198,36 @@ public class Main {
             em.close();
             emf.close();
         }
+    }
+
+    // Método helper para no repetir 6 veces el mismo bloque de código
+    private static void crearFactura(EntityManager em, Long numero, PuntoVenta pv, Cliente cliente,
+                                     Usuario usuario, CondicionIva condicionIva, TipoMoneda tipoMoneda,
+                                     ListaPrecioArticulo lpa, double importeTotal, String estado, int cantidad) {
+
+        FacturaVenta factura = new FacturaVenta();
+        factura.setNumero(numero);
+        factura.setFechaEmision(new Date());
+        factura.setPuntoVenta(pv);
+        factura.setCliente(cliente);
+        factura.setCondicionIva(condicionIva);
+        factura.setTipoMoneda(tipoMoneda);
+        factura.setImporteTotal(importeTotal);
+        factura.setEstado(estado);
+        factura.setFechaAlta(new Date());
+        factura.setFechaModificacion(new Date());
+        factura.setUsuarioCarga(usuario);
+        factura.setUsuarioModificacion(usuario);
+
+        FacturaVentaDetalle detalle = new FacturaVentaDetalle();
+        detalle.setListaPrecioArticulo(lpa);
+        detalle.setDescripcion("Notebook 15\"");
+        detalle.setCantidad(cantidad);
+        detalle.setPrecioUnitario(lpa.getPrecioVenta());
+        detalle.setImporteSubtotal(lpa.getPrecioVenta() * cantidad);
+
+        factura.addDetalle(detalle);
+
+        em.persist(factura);
     }
 }
